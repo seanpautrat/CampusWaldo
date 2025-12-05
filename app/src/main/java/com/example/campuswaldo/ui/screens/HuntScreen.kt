@@ -17,17 +17,21 @@ import com.example.campuswaldo.data.model.RedeemResult
 import com.example.campuswaldo.data.model.WaldoOfDay
 import com.example.campuswaldo.ui.viewmodels.HuntUiState
 import com.example.campuswaldo.ui.viewmodels.HuntViewModel
+import com.example.campuswaldo.ui.viewmodels.UserViewModel 
 
 @Composable
 fun HuntRoute(
-    viewModel: HuntViewModel = viewModel()
+    viewModel: HuntViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel()   
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val time by userViewModel.timeRemaining.collectAsState()   
 
     HuntScreen(
         uiState = uiState,
         onCodeChange = viewModel::updateCodeInput,
-        onRedeemClick = viewModel::redeemCode
+        onRedeemClick = viewModel::redeemCode,
+        timeRemaining = time         
     )
 }
 
@@ -35,7 +39,8 @@ fun HuntRoute(
 fun HuntScreen(
     uiState: HuntUiState,
     onCodeChange: (String) -> Unit,
-    onRedeemClick: () -> Unit
+    onRedeemClick: () -> Unit,
+    timeRemaining: String                     
 ) {
     val waldo = uiState.waldo
 
@@ -71,10 +76,21 @@ fun HuntScreen(
             }
 
             else -> {
+                // --- WALDO header ----
                 WaldoHeader(waldo)
+
+                Spacer(Modifier.height(8.dp))
+
+                // --- TIMER SECTION ---
+                Text(
+                    text = "Time left today: $timeRemaining",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(6.dp)
+                )
 
                 Spacer(Modifier.height(12.dp))
 
+                // ----- Hints -----
                 Text("Live hints", style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(8.dp))
 
@@ -82,6 +98,7 @@ fun HuntScreen(
 
                 Spacer(Modifier.height(24.dp))
 
+                // ----- CODE INPUT -----
                 CodeSection(
                     codeInput = uiState.codeInput,
                     onCodeChanged = onCodeChange,
@@ -90,6 +107,7 @@ fun HuntScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+                // ----- Redeem Result -----
                 uiState.redeemResult?.let { result ->
                     Text(
                         text = "${result.message} ${
@@ -182,11 +200,14 @@ fun HuntScreenPreview() {
             imageUrl = "",
             hints = listOf("Quiet", "Books", "Need ID")
         ),
+        codeInput = "",
         redeemResult = RedeemResult(true, 18, "You found today’s Waldo!")
     )
+
     HuntScreen(
         uiState = preview,
         onCodeChange = {},
-        onRedeemClick = {}
+        onRedeemClick = {},
+        timeRemaining = "02:13:45"     // Preview timer
     )
 }
