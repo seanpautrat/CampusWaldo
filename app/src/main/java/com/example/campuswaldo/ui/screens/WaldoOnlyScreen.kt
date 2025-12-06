@@ -6,9 +6,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.campuswaldo.ui.viewmodels.WaldoOnlyViewModel
 
 @Composable
-fun WaldoOnlyScreen() {
+fun WaldoOnlyScreen(
+    viewModel: WaldoOnlyViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
     var hintText by remember { mutableStateOf("") }
 
     Column(
@@ -41,12 +45,22 @@ fun WaldoOnlyScreen() {
 
         Spacer(Modifier.height(24.dp))
 
-        Text("Today’s code: CORNELL", style = MaterialTheme.typography.bodyLarge)
+        when {
+            uiState.isLoading -> {
+                Text("Loading code…", style = MaterialTheme.typography.bodyLarge)
+            }
+            uiState.error != null -> {
+                Text(
+                    "Error loading code",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+            else -> {
+                Text(
+                    "Today’s code: ${uiState.secretCode}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun WaldoOnlyScreenPreview() {
-    WaldoOnlyScreen()
 }

@@ -24,7 +24,7 @@ class UserViewModel : ViewModel() {
 
     // Change isTodayWaldo to true to preview the Waldo-only flow
     private val initialUser = User(
-        username = "sean23",
+        username = "sean",
         isTodayWaldo = false
     )
 

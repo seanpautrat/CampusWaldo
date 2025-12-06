@@ -25,7 +25,9 @@ import com.example.campuswaldo.ui.screens.WaldoOnlyScreen
 import com.example.campuswaldo.ui.viewmodels.AppUiState
 import com.example.campuswaldo.ui.viewmodels.UserRole
 import com.example.campuswaldo.ui.viewmodels.UserViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

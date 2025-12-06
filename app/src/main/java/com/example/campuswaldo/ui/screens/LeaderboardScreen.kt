@@ -9,14 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.campuswaldo.data.model.LeaderboardEntry
 import com.example.campuswaldo.ui.viewmodels.LeaderboardUiState
 import com.example.campuswaldo.ui.viewmodels.LeaderboardViewModel
 
 @Composable
 fun LeaderboardRoute(
-    viewModel: LeaderboardViewModel = viewModel()
+    viewModel: LeaderboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     LeaderboardScreen(uiState)

@@ -1,5 +1,7 @@
 package com.example.campuswaldo.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -12,27 +14,56 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.campuswaldo.data.model.RedeemResult
 import com.example.campuswaldo.data.model.WaldoOfDay
 import com.example.campuswaldo.ui.viewmodels.HuntUiState
 import com.example.campuswaldo.ui.viewmodels.HuntViewModel
-import com.example.campuswaldo.ui.viewmodels.UserViewModel 
+import kotlinx.coroutines.delay
+import java.time.Duration
+import java.time.LocalDateTime
 
 @Composable
 fun HuntRoute(
-    viewModel: HuntViewModel = viewModel(),
-    userViewModel: UserViewModel = viewModel()   
+    viewModel: HuntViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val time by userViewModel.timeRemaining.collectAsState()   
+    val timeRemaining by rememberCountdownToMidnight()
 
     HuntScreen(
         uiState = uiState,
         onCodeChange = viewModel::updateCodeInput,
         onRedeemClick = viewModel::redeemCode,
-        timeRemaining = time         
+        timeRemaining = timeRemaining
     )
+}
+
+/**
+ * Returns a State<String> that updates every second with the time left until midnight.
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun rememberCountdownToMidnight(): State<String> {
+    val timeState = remember { mutableStateOf("00:00:00") }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            val now = LocalDateTime.now()
+            val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
+            val duration = Duration.between(now, midnight)
+            val totalSeconds = duration.seconds.coerceAtLeast(0)
+
+            val hours = totalSeconds / 3600
+            val minutes = (totalSeconds % 3600) / 60
+            val seconds = totalSeconds % 60
+
+            timeState.value = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+
+            delay(1_000L)
+        }
+    }
+
+    return timeState
 }
 
 @Composable
@@ -40,7 +71,7 @@ fun HuntScreen(
     uiState: HuntUiState,
     onCodeChange: (String) -> Unit,
     onRedeemClick: () -> Unit,
-    timeRemaining: String                     
+    timeRemaining: String
 ) {
     val waldo = uiState.waldo
 
@@ -76,7 +107,6 @@ fun HuntScreen(
             }
 
             else -> {
-                // --- WALDO header ----
                 WaldoHeader(waldo)
 
                 Spacer(Modifier.height(8.dp))
@@ -90,7 +120,6 @@ fun HuntScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // ----- Hints -----
                 Text("Live hints", style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(8.dp))
 
@@ -98,7 +127,6 @@ fun HuntScreen(
 
                 Spacer(Modifier.height(24.dp))
 
-                // ----- CODE INPUT -----
                 CodeSection(
                     codeInput = uiState.codeInput,
                     onCodeChanged = onCodeChange,
@@ -107,12 +135,10 @@ fun HuntScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // ----- Redeem Result -----
                 uiState.redeemResult?.let { result ->
                     Text(
-                        text = "${result.message} ${
-                            if (result.pointsEarned > 0) "(+${result.pointsEarned} pts)" else ""
-                        }",
+                        text = "${result.message} " +
+                                if (result.pointsEarned > 0) "(+${result.pointsEarned} pts)" else "",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                         color = if (result.correct)
@@ -182,9 +208,7 @@ private fun CodeSection(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
     ) {
-        Button(
-            onClick = onRedeemClicked
-        ) {
+        Button(onClick = onRedeemClicked) {
             Text("Redeem")
         }
     }
@@ -203,11 +227,10 @@ fun HuntScreenPreview() {
         codeInput = "",
         redeemResult = RedeemResult(true, 18, "You found today’s Waldo!")
     )
-
     HuntScreen(
         uiState = preview,
         onCodeChange = {},
         onRedeemClick = {},
-        timeRemaining = "02:13:45"     // Preview timer
+        timeRemaining = "02:13:45"
     )
 }
