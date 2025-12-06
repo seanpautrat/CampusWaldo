@@ -64,10 +64,10 @@ class HuntViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getSecretCode()
                 .onSuccess { code ->
-                    Log.d("HuntViewModel", "🔍 Secret code for testing: $code")
+                    Log.d("HuntViewModel", "Secret code for testing: $code")
                 }
                 .onFailure { e ->
-                    Log.e("HuntViewModel", "❌ Failed to load secret code", e)
+                    Log.e("HuntViewModel", "Failed to load secret code", e)
                 }
         }
     }

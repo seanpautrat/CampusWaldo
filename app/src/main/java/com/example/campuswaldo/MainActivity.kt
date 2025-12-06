@@ -50,7 +50,6 @@ fun CampusWaldoApp(
 
     val isWaldo = appUiState.role == UserRole.WALDO
 
-    // Tabs for the bottom nav, like the "tabs" list in the course docs
     val tabs = if (isWaldo) {
         listOf(WaldoScreen.Waldo, WaldoScreen.Leaderboard)
     } else {

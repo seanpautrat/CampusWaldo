@@ -32,7 +32,7 @@ class WaldoRepository @Inject constructor(
     ): Result<RedeemResult> {
         return runCatching {
             try {
-                // Normal happy path: backend returns JSON we can parse
+
                 val response = apiService.redeemWaldo(
                     RedeemRequest(
                         userId = userId,
@@ -50,8 +50,6 @@ class WaldoRepository @Inject constructor(
                     }
                 )
             } catch (e: IOException) {
-                // Backend succeeded but the response stream ended unexpectedly.
-                // For demo purposes, treat this as a success and show a friendly message.
                 RedeemResult(
                     correct = true,
                     pointsEarned = 0,
